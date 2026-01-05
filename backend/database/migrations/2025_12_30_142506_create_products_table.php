@@ -18,6 +18,7 @@ Schema::create('products', function (Blueprint $table) {
     $table->float('rating')->nullable();
     $table->integer('reviews_count')->nullable();
 
+
 $table->foreignId('user_id')->constrained()->cascadeOnDelete();
     $table->integer('in_stock');
     $table->boolean('is_active');

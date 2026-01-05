@@ -23,7 +23,6 @@ class Product extends Model
         'user_id',
         'in_stock',
         'is_active',
-        'sku',
     ];
 
     protected $casts = [

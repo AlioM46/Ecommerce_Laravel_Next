@@ -32,4 +32,21 @@ class CategoryController extends Controller
     public function destroy($id) {
         return response()->json($this->service->delete($id));
     }
+       
+    public function getCategoryTreeByCategoryFirstLevel($id) {
+        return response()->json($this->service->getCategoryTreeByCategoryFirstLevel($id));
+    }
+
+    
+    public function getByName($name) {
+        return response()->json($this->service->getByName($name));
+    }
+
+
+    public function getTop10Categories() {
+        return response()->json($this->service->getTop10Categories());
+    }
+
+
+
 }
