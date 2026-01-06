@@ -4,6 +4,7 @@ use App\Http\Controllers\AddressController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
+use App\Http\Controllers\OrderController;
 use App\Http\Controllers\ProductController;
 
 Route::get('/test', function() {
@@ -41,3 +42,13 @@ Route::post('/address', [AddressController::class, 'store']);
 Route::get('/address/{addressId}', [AddressController::class, 'show']);
 Route::put('/address/{addressId}', [AddressController::class, 'update']);
 Route::delete('/address/{addressId}', [AddressController::class, 'destroy']);
+
+
+
+// Route::middleware('auth:sanctum')->group(function () {
+    Route::get('/order', [OrderController::class, 'index']);
+    Route::get('/order/{id}', [OrderController::class, 'show']);
+    Route::post('/order', [OrderController::class, 'store']);
+    Route::put('/order/{id}/cancel', [OrderController::class, 'cancel']);
+    Route::put('/order/{id}/pay', [OrderController::class, 'markAsPaid']);
+// });

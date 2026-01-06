@@ -2,6 +2,7 @@
 
 namespace App\Models;
 
+use App\Enums\enOrderStatus;
 use Illuminate\Database\Eloquent\Model;
 
 class Order extends Model
@@ -10,6 +11,11 @@ class Order extends Model
 
     protected $fillable = [
         'user_id','shipping_address_id','total_price','status'
+    ];
+
+    
+    protected $casts = [
+        'status' => enOrderStatus::class,
     ];
 
     public function user() {

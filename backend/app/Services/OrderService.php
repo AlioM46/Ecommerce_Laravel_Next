@@ -1,6 +1,6 @@
 <?php 
 namespace App\Services;
-
+use App\Enums\enOrderStatus;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
@@ -23,7 +23,7 @@ public function createOrder(int $userId, int $addressId, array $items)
         $order = Order::create([
             'user_id' => $userId,
             'shipping_address_id' => $addressId,
-            'status' => 'pending',
+            'status' => enOrderStatus::Pending,
             'total_price' => 0
         ]);
 
@@ -59,9 +59,8 @@ public function getUserOrders($userId) {
     $ordersList = Order::where("user_id", $userId)
     ->with([
             'products:id,name,price',
-            'products.pivot:order_id,product_id,quantity,price',
             'address:id,full_name,city,country,postal_code,phone',
-            'payment:id,order_id,amount,status,method'
+            'payment:id,order_id,amount,status,payment_method'
             ])
             ->orderBy('created_at', 'desc')
             ->get();    
@@ -77,9 +76,8 @@ public function getOrderById(int $orderId, int $userId)
         ->where('user_id', $userId)
         ->with([
             'products:id,name,price',
-            'products.pivot:order_id,product_id,quantity,price',
             'address:id,full_name,address,city,state,country,postal_code,phone',
-            'payment:id,order_id,amount,status,method'
+            'payment:id,order_id,amount,status,payment_method'
         ])
         ->firstOrFail();
 }
@@ -90,12 +88,12 @@ public function cancelOrder(int $orderId, int $userId)
         ->where('user_id', $userId)
         ->firstOrFail();
 
-    if ($order->status !== 'pending') {
+    if ($order->status !== enOrderStatus::Pending) {
         throw new \Exception('Order cannot be cancelled at this stage');
     }
 
     $order->update([
-        'status' => 'cancelled'
+        'status' => enOrderStatus::Cancelled
     ]);
 
     return $order;
@@ -109,12 +107,12 @@ public function markOrderAsCompleted(int $orderId)
     $order = Order::where('id', $orderId)
         ->firstOrFail();
 
-    if ($order->status !== 'paid') {
+    if ($order->status !== enOrderStatus::Paid) {
         throw new \Exception('Order is not in a completed state');
     }
 
     $order->update([
-        'status' => 'completed'
+        'status' => enOrderStatus::Completed
     ]);
 
     return $order;
@@ -125,12 +123,12 @@ public function markOrderAsPaid(int $orderId)
     $order = Order::where('id', $orderId)
         ->firstOrFail();
 
-    if ($order->status !== 'pending') {
+    if ($order->status !== enOrderStatus::Pending) {
         throw new \Exception('Order is not in a payable state');
     }
 
     $order->update([
-        'status' => 'paid'
+        'status' => enOrderStatus::Paid
     ]);
 
     return $order;
