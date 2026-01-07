@@ -5,6 +5,7 @@ use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -50,8 +51,11 @@ public function createOrder(int $userId, int $addressId, array $items)
             'total_price' => $total
         ]);
 
-        return $order->load('products', 'address', 'user');
-    });
+return response()->json([
+    'isSuccess' => true,
+    'message' => 'Order created successfully',
+    'order' => $order
+]);    });
 }
 
 public function getUserOrders($userId) {

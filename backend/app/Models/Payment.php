@@ -10,6 +10,11 @@ class Payment extends Model
         'order_id','payment_method','amount','status','transaction_id'
     ];
 
+
+    protected $casts = [
+        'amount' => 'float'
+        ]
+;
     public function order() {
         return $this->belongsTo(Order::class);
     }

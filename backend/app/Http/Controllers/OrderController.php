@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Services\OrderService;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
 
 class OrderController extends Controller
 {
@@ -34,6 +35,9 @@ class OrderController extends Controller
     // Create a new order
     public function store(Request $request)
     {
+
+        Log::info('Creating order for user ID: ' . $request->user());
+
         $order = $this->orderService->createOrder(
             $request->user()->id,
             $request->input('address_id'),
@@ -46,6 +50,7 @@ class OrderController extends Controller
     // Cancel an order
     public function cancel($id, Request $request)
     {
+        
         $order = $this->orderService->cancelOrder($id, $request->user()->id);
         return response()->json($order);
     }

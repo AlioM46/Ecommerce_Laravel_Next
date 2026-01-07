@@ -26,8 +26,8 @@ class Product extends Model
     ];
 
     protected $casts = [
-        'price' => 'decimal:2',
-        'discount_price' => 'decimal:2',
+        'price' => 'float',
+        'discount_price' => 'float',
         'rating' => 'float',
         'reviews_count' => 'integer',
         'created_at' => 'datetime',
