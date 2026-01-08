@@ -19,8 +19,6 @@ class OrderController extends Controller
     // List all orders for the logged-in user
     public function index(Request $request)
     {
-        return $request->user();
-
         $orders = $this->orderService->getUserOrders($request->user()->id);
         return response()->json($orders);
     }

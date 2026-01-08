@@ -8,7 +8,7 @@ class Product extends Model
 {
     protected $table = 'products';
     protected $primaryKey = 'id';
-    public $timestamps = false;
+    public $timestamps = true;
 
     protected $fillable = [
         'name',
@@ -18,8 +18,6 @@ class Product extends Model
         'brand',
         'rating',
         'reviews_count',
-        'created_at',
-        'updated_at',
         'user_id',
         'in_stock',
         'is_active',

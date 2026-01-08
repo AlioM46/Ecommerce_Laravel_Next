@@ -17,12 +17,9 @@ class PaymentController extends Controller
 
     }
 
-    /**
-     * Create PaymentIntent
-     */
-   public function createIntent($orderId)
+    public function createIntent($orderId)
     {
-        $order = Order::findOrFail($orderId);
+  $order = Order::findOrFail($orderId);
 
         Stripe::setApiKey(config('services.stripe.secret'));
 
@@ -33,6 +30,8 @@ class PaymentController extends Controller
                 'order_id' => $order->id,
             ],
         ]);
+
+        
 
         // Store payment as pending
         $payment = Payment::create([
@@ -47,8 +46,7 @@ class PaymentController extends Controller
         return response()->json([
             'client_secret' => $intent->client_secret,
             "isSuccess" => true,
-        ]);
-    }
+        ]);    }
 
     /**
      * Stripe webhook endpoint

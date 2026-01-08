@@ -24,10 +24,14 @@ class AddressController extends Controller
     }
    public function store( Request $request) 
     {
-        return response()->json([
-            'isSuccess' => true,
-            'data' => $this->service->create($request->all())
-        ]);
+   $data = array_merge($request->all(), [
+        'user_id' => $request->user()->id,
+    ]);
+
+    return response()->json([
+        'isSuccess' => true,
+        'data' => $this->service->create($data)
+    ]);
     }
    public function show($addressId) 
     {

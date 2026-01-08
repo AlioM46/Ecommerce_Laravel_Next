@@ -22,15 +22,15 @@ class CategoryController extends Controller
     }
 
     public function store(Request $request) {
-        return response()->json($this->service->create($request->all()));
+        return response()->json(['data' => $this->service->create($request->all()), 'isSuccess' => true]);
     }
 
     public function update(Request $request, $id) {
-        return response()->json($this->service->update($id, $request->all()));
+        return response()->json(['data' =>  $this->service->update($id, $request->all()), 'isSuccess' => true]);
     }
 
     public function destroy($id) {
-        return response()->json($this->service->delete($id));
+        return response()->json(['data' => $this->service->delete($id), 'isSuccess' => true]);
     }
        
     public function getCategoryTreeByCategoryFirstLevel($id) {

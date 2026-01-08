@@ -36,7 +36,12 @@ public function createOrder(int $userId, int $addressId, array $items)
             $product = Product::findOrFail($item['product_id']);
 
             $quantity = (int) $item['quantity'];
-            $price    = $product->price; 
+
+            if ($product['discount_price'] !== null && $product['discount_price'] > 0) {
+                $price = $product['discount_price'];
+            } else {
+                $price = $product->price;
+            }
 
             $order->products()->attach($product->id, [
                 'quantity' => $quantity,

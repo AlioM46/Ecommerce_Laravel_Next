@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Enums\UserRole;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -21,7 +22,7 @@ class AuthService
         $user = User::create([
             'name' => $data['name'],
             'email' => $data['email'],
-            'role' => $data['role'] ?? 'user', // default role
+            'role' => $data['role'] ?? UserRole::USER, // default role
             'password' => Hash::make($data['password']),
         ]);
 
@@ -96,7 +97,19 @@ class AuthService
     $accessToken = JWTAuth::fromUser($user);
 
     // Set refresh token cookie
-    Cookie::queue(
+    // Cookie::queue(
+    // 'refreshToken',        // name
+    // $refreshToken,         // value
+    // 60*24*30,              // minutes = 30 days
+    // '/',                   // path
+    // null,                  // domain
+    // false,                 // secure (true if HTTPS)
+    // false,                 // httpOnly
+    // false,                 // raw
+    // 'Lax'                  // SameSite
+    // );
+
+        Cookie::queue(
         'refreshToken',
         $refreshToken,
         60*24*30,

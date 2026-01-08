@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Product;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Log;
 
 class ProductService
 {
@@ -28,13 +29,14 @@ class ProductService
 
     /* ===================== CREATE ===================== */
 
-    public function create(array $data): Product
+    public function create(array $data, int $userId): Product
     {
-        return DB::transaction(function () use ($data) {
+        return DB::transaction(function () use ($data, $userId) {
 
-            $product = Product::create([
-                'created_at'     => $data['created_at'] ?? now(),
-                'updated_at'     => $data['updated_at'] ?? now(),
+Log::info('Product payload: ' . json_encode($data) . "user Id =>" . json_encode($userId));
+                $product = Product::create([
+                // 'created_at'     => $data['created_at'] ?? now(),
+                // 'updated_at'     => $data['updated_at'] ?? now(),
                 'name'           => $data['name'],
                 'description'    => $data['description'] ?? null,
                 'price'          => $data['price'],
@@ -42,7 +44,7 @@ class ProductService
                 'brand'          => $data['brand'] ?? null,
                 'rating'         => $data['rating'] ?? 0,
                 'reviews_count'  => $data['reviews_count'] ?? 0,
-                'user_id'        => $data['user_id'],
+                'user_id'        => $userId,
                 'in_stock'       => $data['in_stock'] ?? 0,
                 'is_active'      => $data['is_active'] ?? true,
             ]);
@@ -72,65 +74,65 @@ class ProductService
                     $product->colors()->create(['color' => $color]);
                 }
             }
-
             return $product;
         });
     }
 
     /* ===================== UPDATE ===================== */
 
-    public function update(int $id, array $data): bool
-    {
-        return DB::transaction(function () use ($id, $data) {
+public function update(int $id, array $data): bool
+{
+    return DB::transaction(function () use ($id, $data) {
 
-            $product = Product::findOrFail($id);
+        $product = Product::findOrFail($id);
 
-            // Update main fields
-            $product->update([
-                'name'           => $data['name'],
-                'description'    => $data['description'] ?? $product->description,
-                'price'          => $data['price'] ?? $product->price,
-                'discount_price' => $data['discount_price'] ?? $product->discount_price,
-                'brand'          => $data['brand'] ?? $product->brand,
-                'rating'         => $data['rating'] ?? $product->rating,
-                'reviews_count'  => $data['reviews_count'] ?? $product->reviews_count,
-                'updated_at'     => now(),
-                'in_stock'       => $data['in_stock'] ?? $product->in_stock,
-                'is_active'      => $data['is_active'] ?? $product->is_active,
-            ]);
+        $product->update([
+            'name'           => $data['name'],
+            'description'    => $data['description'] ?? null,
+            'price'          => $data['price'],
+            'discount_price' => $data['discount_price'] ?? 0,
+            'brand'          => $data['brand'] ?? null,
+            'rating'         => $data['rating'] ?? 0,
+            'reviews_count'  => $data['reviews_count'] ?? 0,
+            'in_stock'       => $data['in_stock'] ?? 0,
+            'is_active'      => $data['is_active'] ?? true,
+        ]);
 
-            // ⚡ Categories (M-M) — sync replaces old categories with new ones
-            if (isset($data['category_ids'])) {
-                $product->categories()->sync($data['category_ids']);
+        /* ================= CATEGORIES (M-M) ================= */
+        if (array_key_exists('category_ids', $data)) {
+            $product->categories()->sync($data['category_ids']);
+        }
+
+        /* ================= IMAGES (1-M) ================= */
+        if (array_key_exists('images', $data)) {
+            $product->images()->delete();
+            foreach ($data['images'] as $url) {
+                $product->images()->create([
+                    'url' => $url
+                ]);
             }
+        }
 
-            // ⚡ Images (1-M) — delete old, insert new
-            if (isset($data['images'])) {
-                $product->images()->delete();
-                foreach ($data['images'] as $image) {
-                    $product->images()->create(['image_url' => $image]);
-                }
+        /* ================= SIZES ================= */
+        if (array_key_exists('sizes', $data)) {
+            $product->sizes()->delete();
+            foreach ($data['sizes'] as $size) {
+                $product->sizes()->create(['size' => $size]);
             }
+        }
 
-            // ⚡ Sizes (1-M)
-            if (isset($data['sizes'])) {
-                $product->sizes()->delete();
-                foreach ($data['sizes'] as $size) {
-                    $product->sizes()->create(['size' => $size]);
-                }
+        /* ================= COLORS ================= */
+        if (array_key_exists('colors', $data)) {
+            $product->colors()->delete();
+            foreach ($data['colors'] as $color) {
+                $product->colors()->create(['color' => $color]);
             }
+        }
 
-            // ⚡ Colors (1-M)
-            if (isset($data['colors'])) {
-                $product->colors()->delete();
-                foreach ($data['colors'] as $color) {
-                    $product->colors()->create(['color' => $color]);
-                }
-            }
+        return true;
+    });
+}
 
-            return true;
-        });
-    }
 
     /* ===================== DELETE ===================== */
 

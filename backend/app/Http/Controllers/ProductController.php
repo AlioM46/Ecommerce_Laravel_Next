@@ -39,7 +39,8 @@ class ProductController extends Controller
     public function store(Request $request)
     {
         $data = $request->all();
-        $product = $this->service->create($data);
+        // return $data;
+        $product = $this->service->create($data, $request->user()->id);
         return response()->json([
             'isSuccess' => true,
             'data' => $product
