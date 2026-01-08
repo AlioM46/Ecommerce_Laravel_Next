@@ -13,13 +13,11 @@ class StripeWebhookController extends Controller
 {
 public function handle(Request $request)
 {
-    Log::info('Webhook received');
-
     $payload   = $request->getContent();
     $sigHeader = $request->header('Stripe-Signature');
 
     try {
-        $event = Webhook::constructEvent(
+        $event = \Stripe\Webhook::constructEvent(
             $payload,
             $sigHeader,
             config('services.stripe.webhook_secret')
@@ -31,40 +29,37 @@ public function handle(Request $request)
 
     Log::info('Event type: '.$event->type);
 
-    // We ONLY care about successful payments
-    if ($event->type !== 'payment_intent.succeeded') {
-        return response()->json(['status' => 'ignored']);
+    if ($event->type === 'checkout.session.completed') {
+        $session = $event->data->object;
+
+        $orderId = $session->metadata->order_id ?? null;
+        if (!$orderId) {
+            Log::warning('Order ID missing in metadata');
+            return response()->json(['status' => 'missing_order']);
+        }
+
+        $order = Order::find($orderId);
+        if (!$order) {
+            Log::warning("Order not found: {$orderId}");
+            return response()->json(['status' => 'order_not_found']);
+        }
+
+        // Update Payment record
+        $payment = Payment::where('transaction_id', $session->id)->first();
+        if ($payment) {
+            $payment->update(['status' => 'paid']);
+        } else {
+            Log::warning("Payment not found for session {$session->id}");
+        }
+
+        $order->update(['status' => \App\Enums\enOrderStatus::Paid]);
+
+        Log::info("Order {$orderId} marked as PAID");
+
+        return response()->json(['status' => 'ok']);
     }
 
-    $intent  = $event->data->object;
-    $orderId = $intent->metadata->order_id ?? null;
-
-    if (!$orderId) {
-        Log::warning('Order ID missing in payment metadata');
-        return response()->json(['status' => 'missing_order']);
-    }
-
-    $order = Order::find($orderId);
-
-    if (!$order) {
-        Log::warning("Order not found: {$orderId}");
-        return response()->json(['status' => 'order_not_found']);
-    }
-
-    $payment = Payment::where('transaction_id', $intent->id)->first();
-
-    if ($payment) {
-        $payment->update(['status' => 'paid']);
-    } else {
-        Log::warning("Payment not found for intent {$intent->id}");
-    }
-
-    $order->update(['status' => enOrderStatus::Paid]);
-
-    Log::info("Order {$orderId} marked as PAID");
-
-    return response()->json(['status' => 'ok']);
+    // You can still handle other event types if needed
+    return response()->json(['status' => 'ignored']);
 }
-
-
 }
