@@ -19,6 +19,7 @@ class CheckoutController extends Controller
 
 public function checkout(Request $request)
 {
+
     return DB::transaction(function () use ($request) {
         // 1️⃣ Create Order
         $orderResponse = app(OrderService::class)->createOrder(
@@ -38,6 +39,7 @@ public function checkout(Request $request)
 //             'isSuccess' => true,
 //             'sessionId' => $order->products,
 // ]);
+
 
         // 2️⃣ Create Checkout Session
         $session = Session::create([

@@ -8,6 +8,7 @@ use App\Http\Controllers\CheckoutController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\PaymentController;
 use App\Http\Controllers\ProductController;
+use App\Http\Controllers\StorageController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 
@@ -73,3 +74,11 @@ Route::middleware("jwt.auth")->group(function() {
     Route::post("/checkout", [CheckoutController::class, "checkOut"]);
 });
 Route::post('/webhooks/stripe', [StripeWebhookController::class, 'handle']);
+
+
+Route::prefix('/storage')->middleware('jwt.auth')->group(function() {
+    Route::post('/upload', [StorageController::class, 'upload']);
+    Route::post('/temporary-url', [StorageController::class, 'temporaryUrl']);
+    Route::post('/permanent-url', [StorageController::class, 'permanentUrl']);
+    Route::post('/exists', [StorageController::class, 'exists']);
+});

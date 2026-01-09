@@ -20,7 +20,13 @@ return [
     'webhook_secret' => env('STRIPE_WEBHOOK_SECRET'),
 ],
 
-
+'r2' => [
+    'bucket' => env('R2_BUCKET'),
+    'endpoint' => env('R2_ENDPOINT'),
+    'key' => env('R2_ACCESS_KEY'),
+    'secret' => env('R2_SECRET_KEY'),
+    'public_url' => env('R2_PUBLIC_URL'),   
+],
 
     'postmark' => [
         'key' => env('POSTMARK_API_KEY'),

@@ -31,37 +31,47 @@ public function createOrder(int $userId, int $addressId, array $items)
         $total = 0;
 
 
-        foreach ($items as $item) {
+       foreach ($items as $item) {
 
             $product = Product::findOrFail($item['product_id']);
 
             $quantity = (int) $item['quantity'];
+            $size = $item['size'] ?? null;
+            $color = $item['color'] ?? null;
 
-            if ($product['discount_price'] !== null && $product['discount_price'] > 0) {
-                $price = $product['discount_price'];
-            } else {
-                $price = $product->price;
-            }
+            $price = ($product->discount_price !== null && $product->discount_price > 0)
+                        ? $product->discount_price
+                        : $product->price;
 
-            $order->products()->attach($product->id, [
-                'quantity' => $quantity,
-                'price' => $price
-            ]);
+            // Use updateOrInsert logic for pivot table
+            DB::table('order_product')->updateOrInsert(
+                [
+                    'order_id' => $order->id,
+                    'product_id' => $product->id,
+                    'size' => $size,
+                    'color' => $color
+                ],
+                [
+                    'quantity' => $quantity,
+                    'price' => $price,
+                ]
+            );
 
             $total += $quantity * $price;
         }
-
 
         $order->update([
             'total_price' => $total
         ]);
 
-return response()->json([
-    'isSuccess' => true,
-    'message' => 'Order created successfully',
-    'order' => $order
-]);    });
+        return response()->json([
+            'isSuccess' => true,
+            'message' => 'Order created successfully',
+            'order' => $order
+        ]);
+    });
 }
+
 
 public function getUserOrders($userId) {
 

@@ -33,7 +33,6 @@ class ProductService
     {
         return DB::transaction(function () use ($data, $userId) {
 
-Log::info('Product payload: ' . json_encode($data) . "user Id =>" . json_encode($userId));
                 $product = Product::create([
                 // 'created_at'     => $data['created_at'] ?? now(),
                 // 'updated_at'     => $data['updated_at'] ?? now(),
@@ -154,36 +153,42 @@ public function update(int $id, array $data): bool
 
     /* ===================== ORDERED / FILTERED ===================== */
 
-    public function getOrdered(array $filters)
-    {
-        $query = Product::with(['images', 'categories']);
+  public function getOrdered(array $filters)
+{
+    $query = Product::with(['images', 'categories']);
 
-        if (!empty($filters['onlyActive'])) {
-            $query->where('is_active', true);
-        }
+    if (!empty($filters['onlyActive'])) {
+        $query->where('is_active', true);
+    }
 
-        if (!empty($filters['categoryId'])) {
-            $query->whereHas('categories', function ($q) use ($filters) {
-                $q->where('categories.id', $filters['categoryId']);
+    if (!empty($filters['categoryId'])) {
+        $category = \App\Models\Category::with('children')->find($filters['categoryId']);
+
+        if ($category) {
+            $allIds = $category->allChildrenIds();
+
+            $query->whereHas('categories', function ($q) use ($allIds) {
+                $q->whereIn('categories.id', $allIds);
             });
         }
-
-        if (!empty($filters['search'])) {
-            $query->where('name', 'like', '%' . $filters['search'] . '%');
-        }
-
-        switch ($filters['orderedBy'] ?? 1) {
-            case 1: $query->latest('created_at'); break;
-            case 2: $query->orderBy('price'); break;
-            case 3: $query->orderByDesc('price'); break;
-            case 5: $query->whereNotNull('discount_price'); break;
-        }
-
-        return $query->paginate(
-            $filters['pageSize'] ?? 20,
-            ['*'],
-            'page',
-            $filters['pageNumber'] ?? 1
-        );
     }
+
+    if (!empty($filters['search'])) {
+        $query->where('name', 'like', '%' . $filters['search'] . '%');
+    }
+
+    switch ($filters['orderedBy'] ?? 1) {
+        case 1: $query->latest('created_at'); break;
+        case 2: $query->orderBy('price'); break;
+        case 3: $query->orderByDesc('price'); break;
+        case 5: $query->whereNotNull('discount_price'); break;
+    }
+
+    return $query->paginate(
+        $filters['pageSize'] ?? 20,
+        ['*'],
+        'page',
+        $filters['pageNumber'] ?? 1
+    );
+}
 }
