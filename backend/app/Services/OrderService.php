@@ -11,66 +11,53 @@ class OrderService
 {
 
     //   'user_id','shipping_address_id','total_price','status'
-public function createOrder(int $userId, int $addressId, array $items)
-{
-    return DB::transaction(function () use ($userId, $addressId, $items) {
+    public function createOrder(int $userId, int $addressId, array $items): Order
+    {
+        return DB::transaction(function () use ($userId, $addressId, $items) {
 
-        $user = User::findOrFail($userId);
+            $user = User::findOrFail($userId);
+            $address = $user->addresses()->where('id', $addressId)->firstOrFail();
 
-        $address = $user->addresses()
-                        ->where('id', $addressId)
-                        ->firstOrFail();
+            $order = Order::create([
+                'user_id' => $userId,
+                'shipping_address_id' => $addressId,
+                'status' => enOrderStatus::Pending,
+                'total_price' => 0,
+            ]);
 
-        $order = Order::create([
-            'user_id' => $userId,
-            'shipping_address_id' => $addressId,
-            'status' => enOrderStatus::Pending,
-            'total_price' => 0
-        ]);
+            $total = 0;
 
-        $total = 0;
+            foreach ($items as $item) {
+                $product = Product::findOrFail($item['product_id']);
+                $quantity = (int) $item['quantity'];
+                $size = $item['size'] ?? null;
+                $color = $item['color'] ?? null;
 
+                $price = ($product->discount_price && $product->discount_price > 0)
+                            ? $product->discount_price
+                            : $product->price;
 
-       foreach ($items as $item) {
+                DB::table('order_product')->updateOrInsert(
+                    [
+                        'order_id' => $order->id,
+                        'product_id' => $product->id,
+                        'size' => $size,
+                        'color' => $color
+                    ],
+                    [
+                        'quantity' => $quantity,
+                        'price' => $price,
+                    ]
+                );
 
-            $product = Product::findOrFail($item['product_id']);
+                $total += $quantity * $price;
+            }
 
-            $quantity = (int) $item['quantity'];
-            $size = $item['size'] ?? null;
-            $color = $item['color'] ?? null;
+            $order->update(['total_price' => $total]);
 
-            $price = ($product->discount_price !== null && $product->discount_price > 0)
-                        ? $product->discount_price
-                        : $product->price;
-
-            // Use updateOrInsert logic for pivot table
-            DB::table('order_product')->updateOrInsert(
-                [
-                    'order_id' => $order->id,
-                    'product_id' => $product->id,
-                    'size' => $size,
-                    'color' => $color
-                ],
-                [
-                    'quantity' => $quantity,
-                    'price' => $price,
-                ]
-            );
-
-            $total += $quantity * $price;
-        }
-
-        $order->update([
-            'total_price' => $total
-        ]);
-
-        return response()->json([
-            'isSuccess' => true,
-            'message' => 'Order created successfully',
-            'order' => $order
-        ]);
-    });
-}
+            return $order;
+        });
+    }
 
 
 public function getUserOrders($userId) {

@@ -44,7 +44,7 @@ class ProductService
                 'rating'         => $data['rating'] ?? 0,
                 'reviews_count'  => $data['reviews_count'] ?? 0,
                 'user_id'        => $userId,
-                'in_stock'       => $data['in_stock'] ?? 0,
+                'in_stock'       => $data['in_stock'] ?? 1,
                 'is_active'      => $data['is_active'] ?? true,
             ]);
 
