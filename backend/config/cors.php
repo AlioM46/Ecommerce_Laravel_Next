@@ -1,11 +1,15 @@
 <?php
 return [
-    'paths' => ['api/*', 'sanctum/csrf-cookie'], // your API paths
+    'paths' => ['api/*', 'sanctum/csrf-cookie'],
     'allowed_methods' => ['*'],
-    'allowed_origins' => ['http://localhost:3000', 'https://www.trendidleb.com/'], // <-- your frontend
+    'allowed_origins' => [
+        'http://localhost:3000',
+        'https://trendidleb.com',
+        'https://www.trendidleb.com', // include both if you want
+    ],
     'allowed_origins_patterns' => [],
     'allowed_headers' => ['*'],
     'exposed_headers' => [],
     'max_age' => 0,
-    'supports_credentials' => true, // <-- very important
+    'supports_credentials' => true,
 ];
