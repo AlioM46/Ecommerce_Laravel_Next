@@ -22,7 +22,7 @@ class AuthController extends Controller
 
         $data = $request->validated(); 
 
-        // $data = $request->only('name','email','password');
+        // $data = $request->only('name','email','password','role');
         $result = $this->authService->register($data);
 
         if (!$result['isSuccess'])
