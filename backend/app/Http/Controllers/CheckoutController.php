@@ -23,7 +23,7 @@ public function checkout(Request $request)
     return DB::transaction(function () use ($request) {
         // 1️⃣ Create Order
         $orderResponse = app(OrderService::class)->createOrder(
-            1, // user id or $request->user()->id
+            $request->user()->id,
             $request->address_id,
             $request->items
         );
