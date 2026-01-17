@@ -16,6 +16,8 @@ return new class extends Migration
             $table->string('refresh_token')->nullable();
             $table->timestamp('refresh_token_expiration_at')->nullable();
             $table->dateTime('last_login')->nullable();
+            $table->dateTime('email_verified_at')->nullable();
+
             $table->tinyInteger('role')->default(3); // store enum as int
             $table->timestamps(); // <-- Adds created_at & updated_at
         });

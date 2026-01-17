@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCreated;
 use App\Models\Payment;
 use App\Models\Product;
 use App\Services\OrderService;
@@ -52,8 +53,8 @@ class CheckoutController extends Controller
                 'line_items' => $lineItems,
                 'mode' => 'payment',
                 'metadata' => ['order_id' => $order->id],
-                'success_url' => env('APP_URL') . '/order-success?orderId=' . $order->id,
-                'cancel_url' => env('APP_URL') . '/cart',
+                'success_url' => env('FRONT_END_URL') . '/order-success?orderId=' . $order->id,
+                'cancel_url' => env('FRONT_END_URL') . '/cart',
             ]);
 
             // 5️⃣ Save payment record
@@ -64,6 +65,9 @@ class CheckoutController extends Controller
                 'status' => 'pending',
                 'transaction_id' => $session->id,
             ]);
+
+
+
 
             // 6️⃣ Return session URL
             return response()->json([

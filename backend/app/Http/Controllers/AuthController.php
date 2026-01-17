@@ -2,10 +2,14 @@
 
 namespace App\Http\Controllers;
 
+use App\Events\OrderCreated;
+use App\Events\UserLoggedIn;
 use App\Http\Requests\LoginRequest;
 use App\Http\Requests\RegisterRequest;
+use App\Models\Order;
 use Illuminate\Http\Request;
 use App\Services\AuthService;
+use Illuminate\Support\Facades\Log;
 
 class AuthController extends Controller
 {
@@ -41,6 +45,18 @@ class AuthController extends Controller
 
         if (!$result['isSuccess'])
             return response()->json($result, 401); // Unauthorized
+
+        $user = $result["data"]["user"];
+        
+        Log::info('LOGIN REACHED');
+
+
+
+            event(new UserLoggedIn(
+        $user,
+        request()->ip(),
+        request()->userAgent()
+    ));
 
         return response()->json($result, 200); // OK
     }

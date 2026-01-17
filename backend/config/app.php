@@ -2,6 +2,8 @@
 
 return [
 
+    'FRONT_END_URL' => env('FRONT_END_URL', 'http://localhost:3000'),
+
     /*
     |--------------------------------------------------------------------------
     | Application Name

@@ -15,11 +15,11 @@ class AddressController extends Controller
     }
 
 
-    public function index( ) 
+    public function index( Request $request) 
     {
         return response()->json([
             'isSuccess' => true,
-            'data' => $this->service->getAll()
+            'data' => $this->service->getByUserId($request->user()->id)
         ]);
     }
    public function store( Request $request) 

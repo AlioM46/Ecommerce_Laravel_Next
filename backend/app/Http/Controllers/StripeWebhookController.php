@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Enums\enOrderStatus;
+use App\Events\OrderCreated;
 use Illuminate\Http\Request;
 use App\Models\Order;
 use App\Models\Payment;
@@ -55,6 +56,10 @@ public function handle(Request $request)
         $order->update(['status' => \App\Enums\enOrderStatus::Paid]);
 
         Log::info("Order {$orderId} marked as PAID");
+
+        # Fire The Event (Email message)
+            event(new OrderCreated($order));
+
 
         return response()->json(['status' => 'ok']);
     }

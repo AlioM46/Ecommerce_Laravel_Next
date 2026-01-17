@@ -9,7 +9,11 @@ class AddressService
     public function getAll() {
         return Address::all();
     }
+    public function getByUserId($userId) {
 
+    return Address::where('user_id', $userId)->get();
+
+    }
     public function getById($id) {
         return Address::find($id);
     }

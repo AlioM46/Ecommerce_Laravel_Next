@@ -1,11 +1,11 @@
 <?php 
 namespace App\Services;
 use App\Enums\enOrderStatus;
+use App\Events\OrderCreated;
 use App\Models\Order;
 use App\Models\Product;
 use App\Models\User;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Log;
 
 class OrderService
 {
@@ -54,6 +54,9 @@ class OrderService
             }
 
             $order->update(['total_price' => $total]);
+
+
+
 
             return $order;
         });

@@ -3,6 +3,7 @@
 namespace App\Services;
 
 use App\Enums\UserRole;
+use App\Events\UserLoggedIn;
 use App\Models\User;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Hash;
@@ -25,6 +26,9 @@ class AuthService
             'role' => $data['role'] ?? UserRole::USER, // default role
             'password' => Hash::make($data['password']),
         ]);
+        
+             $user->sendEmailVerificationNotification();
+
 
         return $this->tokenResponse($user);
     }

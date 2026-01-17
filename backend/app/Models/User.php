@@ -3,13 +3,15 @@
 namespace App\Models;
 
 use App\Enums\UserRole;
+use App\Notifications\VerifyEmail;
+use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Laravel\Sanctum\HasApiTokens;
 use Tymon\JWTAuth\Contracts\JWTSubject;
 
-class User extends Authenticatable implements JWTSubject
+class User extends Authenticatable implements JWTSubject, MustVerifyEmail
 
 {
     use HasApiTokens, Notifiable;
@@ -26,6 +28,7 @@ class User extends Authenticatable implements JWTSubject
         'role',
         'refresh_token',
         'refresh_token_expiration_at',
+        'email_verified_at'
     ];
 
     protected $hidden = [
@@ -34,6 +37,7 @@ class User extends Authenticatable implements JWTSubject
     ];
 
     protected $casts = [
+        'email_verified_at' => 'datetime',
         'last_login' => 'datetime',
         'role' => UserRole::class,
     ];
@@ -63,6 +67,14 @@ class User extends Authenticatable implements JWTSubject
             'email' => $this->email,
             'name'  => $this->name,
             'role'  => $this->role,
+            'isVerified' => $this->hasVerifiedEmail()
         ];
     }
+
+
+public function sendEmailVerificationNotification()
+{
+    $this->notify(new VerifyEmail());
+}
+
 }

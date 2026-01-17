@@ -1,6 +1,7 @@
 <?php
 
 use App\Http\Controllers\AddressController;
+use App\Http\Controllers\Auth\EmailVerificationController;
 use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\CategoryController;
@@ -11,8 +12,21 @@ use App\Http\Controllers\ProductController;
 use App\Http\Controllers\StorageController;
 use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+// Auth::routes(['verify' => true]);
+
+// Route::get("/test", function () {
+//     return "Testing Work";
+// });
 
 
+Route::middleware('jwt.auth')->get('/me', function (Request $request) {
+    return response()->json([
+        'user' => $request->user()
+    ]);
+});
 
 Route::prefix('auth')->group(function () {
 Route::post('/register', [AuthController::class,'register']);
@@ -21,6 +35,22 @@ Route::post('/refresh/{userId}', [AuthController::class,'refresh']);
 Route::post('/logout', [AuthController::class,'logout']);
 
 });
+
+
+
+// Email verification route - no auth required
+
+Route::get('/email/verify/{id}/{hash}', [EmailVerificationController::class, 'verify'])
+    ->name('verification.verify')
+    ->middleware('signed');
+
+
+Route::middleware(['jwt.auth'])->group(function () {
+    // Resend verification email
+    Route::post('/email/resend', [EmailVerificationController::class, 'resend'])
+        ->middleware('throttle:6,1'); // limit resend to 6 per minute
+});
+
 
 
 
