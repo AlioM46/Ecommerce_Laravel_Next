@@ -10,7 +10,7 @@ class VerifyEmail extends BaseVerifyEmail
 {
 protected function verificationUrl($notifiable)
 {
-    $frontendUrl = rtrim(config('app.FRONT_END_URL'), '/') . '/verify-email';
+$frontendUrl = rtrim(env('FRONT_END_URL', 'https://trendidleb.com'), '/') . '/verify-email';
 
     $signedUrl = URL::temporarySignedRoute(
         'verification.verify',

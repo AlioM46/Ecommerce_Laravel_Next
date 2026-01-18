@@ -2,7 +2,7 @@
 
 return [
 
-    'FRONT_END_URL' => env('FRONT_END_URL', 'http://localhost:3000'),
+    'frontend_url' => env('FRONT_END_URL', 'http://localhost:3000'),
 
     /*
     |--------------------------------------------------------------------------
