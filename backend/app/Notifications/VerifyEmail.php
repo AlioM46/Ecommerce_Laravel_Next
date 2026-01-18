@@ -3,11 +3,16 @@
 namespace App\Notifications;
 
 use Illuminate\Auth\Notifications\VerifyEmail as BaseVerifyEmail;
+use Illuminate\Bus\Queueable;
+use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Support\Facades\URL;
 use Illuminate\Notifications\Messages\MailMessage;
 
-class VerifyEmail extends BaseVerifyEmail
+class VerifyEmail extends BaseVerifyEmail implements ShouldQueue
 {
+
+use Queueable;
+
 protected function verificationUrl($notifiable)
 {
 $frontendUrl = rtrim(env('FRONT_END_URL', 'https://trendidleb.com'), '/') . '/verify-email';
