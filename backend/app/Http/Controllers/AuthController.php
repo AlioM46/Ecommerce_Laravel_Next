@@ -30,7 +30,7 @@ class AuthController extends Controller
         $result = $this->authService->register($data);
 
         if (!$result['isSuccess'])
-            return response()->json($result, 409); // Conflict
+            return response()->json($result, 422);  // rarely will reached, because of laravel validation above
 
         return response()->json($result, 201); // Created
     }
