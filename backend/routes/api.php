@@ -14,13 +14,11 @@ use App\Http\Controllers\StripeController;
 use App\Http\Controllers\StripeWebhookController;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Symfony\Component\HttpFoundation\Response;
 
-// Auth::routes(['verify' => true]);
-
-// Route::get("/test", function () {
-//     return "Testing Work";
-// });
-
+Route::get("/protected", function () {
+    return response()->json(["data" => "Protected"], 200);
+})->middleware("jwt.auth");
 
 Route::middleware('jwt.auth')->get('/me', function (Request $request) {
     return response()->json([
